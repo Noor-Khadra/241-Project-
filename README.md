@@ -24,4 +24,4 @@ gcc -o connect4 main.c board.c logic.c robot.c
 Team Members  
 Noor Khadra  
 Nour Chehab  
-Leen AlBabba
+Leen ElBaba
