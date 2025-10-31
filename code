@@ -103,13 +103,59 @@ int getColumn(int maxCols) {
     }
 }
 
-// ---- EASY BOT ----
-int botMove(char board[rows][cols]) {
+void copyBoard(char dest[rows][cols], char src[rows][cols]) {
+    for (int i = 0; i < rows; i++)
+        for (int j = 0; j < cols; j++)
+            dest[i][j] = src[i][j];
+}
+
+int botMove(char board[rows][cols], char bot, char player, int difficulty) {
     int col;
+
+    if (difficulty == 1) {
+        do {
+            col = rand() % cols;
+        } while (board[0][col] != '.');
+        printf("Bot chooses column %d (Easy)\n", col + 1);
+        return col;
+    }
+
+    for (int j = 0; j < cols; j++) {
+        char temp[rows][cols];
+        copyBoard(temp, board);
+        if (update(temp, j, bot) && checkWin(temp, bot)) {
+            printf("Bot chooses column %d (Winning Move)\n", j + 1);
+            return j;
+        }
+    }
+
+    for (int j = 0; j < cols; j++) {
+        char temp[rows][cols];
+        copyBoard(temp, board);
+        if (update(temp, j, player) && checkWin(temp, player)) {
+            printf("Bot chooses column %d (Blocking Move)\n", j + 1);
+            return j;
+        }
+    }
+
+    if (board[0][cols / 2] == '.') {
+        printf("Bot chooses column %d (Center Preference)\n", cols / 2 + 1);
+        return cols / 2;
+    }
+
+    int offsets[] = {0, 1, -1, 2, -2, 3, -3};
+    for (int k = 0; k < 7; k++) {
+        int c = cols / 2 + offsets[k];
+        if (c >= 0 && c < cols && board[0][c] == '.') {
+            printf("Bot chooses column %d (Strategic Fallback)\n", c + 1);
+            return c;
+        }
+    }
+
     do {
         col = rand() % cols;
     } while (board[0][col] != '.');
-    printf("Bot chooses column %d\n", col + 1);
+    printf("Bot chooses column %d (Random Fallback)\n", col + 1);
     return col;
 }
 
@@ -136,7 +182,7 @@ int main() {
         printf("You selected ");
         if (difficulty == 1) printf("Easy\n");
         else if (difficulty == 2) printf("Medium\n");
-        else printf("Hard\n");
+        else printf("Hard (Not implemented yet)\n");
     }
 
     char player = A;
@@ -148,7 +194,7 @@ int main() {
         int col;
 
         if (mode == 2 && player == B) {
-            col = botMove(board);
+            col = botMove(board, B, A, difficulty);
         } else {
             printf("Player %c, enter column (1-%d): ", player, cols);
             fflush(stdout);
